@@ -1,0 +1,14 @@
+---
+- name: restart jboss
+  systemd:
+    name: jboss-as
+    state: restarted
+    daemon_reload: yes
+
+- name: daemon-reload
+  command: systemctl daemon-reload
+  become: yes
+
+- name: reload ufw
+  ufw:
+    state: reloaded
