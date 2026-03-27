@@ -1,13 +1,12 @@
 Role Directory Structure
 
-roles/jboss/
-├── files/
-│   └── jboss-as.service
-├── templates/
-│   ├── standalone.xml
-├── tasks/
-│   └── main.yml
-├── handlers/
-│   └── main.yml
-└── defaults/
-    └── main.yml
+ansible-example-project/
+├── hosts
+├── site.yml
+└── roles/
+    └── wildfly/
+        ├── tasks/main.yml
+        ├── handlers/main.yml
+        ├── defaults/main.yml
+        ├── files/wildfly.service
+        └── templates/standalone.xml

@@ -1,0 +1,7 @@
+---
+http_port: 8080
+https_port: 8443
+wildfly_version: 18.0.1.Final
+wildfly_download_url: "https://download.jboss.org/wildfly/{{ wildfly_version }}/wildfly-{{ wildfly_version }}.tar.gz"
+wildfly_install_dir: /usr/share/wildfly
+wildfly_archive: /opt/wildfly-{{ wildfly_version }}.tar.gz

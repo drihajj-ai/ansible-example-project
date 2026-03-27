@@ -1,14 +1,16 @@
 ---
-- name: restart jboss
+- name: restart wildfly
   systemd:
-    name: jboss-as
+    name: wildfly
     state: restarted
     daemon_reload: yes
+  become: yes
 
-- name: daemon-reload
+- name: reload systemd
   command: systemctl daemon-reload
   become: yes
 
 - name: reload ufw
   ufw:
     state: reloaded
+  become: yes

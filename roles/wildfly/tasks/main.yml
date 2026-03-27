@@ -1,0 +1,102 @@
+---
+- name: Install Java 8 and dependencies
+  apt:
+    name:
+      - openjdk-8-jdk
+      - unzip
+      - ufw
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Download WildFly
+  get_url:
+    url: https://download.jboss.org/wildfly/18.0.1.Final/wildfly-18.0.1.Final.zip
+    dest: /opt/wildfly-18.0.1.Final.zip
+    mode: '0644'
+  become: yes
+
+- name: Extract WildFly
+  unarchive:
+    src: /opt/wildfly-18.0.1.Final.zip
+    dest: /usr/share
+    remote_src: yes
+    creates: /usr/share/wildfly-18.0.1.Final
+  become: yes
+
+- name: Rename WildFly directory
+  command: mv /usr/share/wildfly-18.0.1.Final /usr/share/wildfly
+  args:
+    creates: /usr/share/wildfly
+  become: yes
+
+- name: Create wildfly group
+  group:
+    name: wildfly
+    state: present
+  become: yes
+
+- name: Create wildfly user
+  user:
+    name: wildfly
+    group: wildfly
+    home: /usr/share/wildfly
+    shell: /bin/bash
+    create_home: no
+    state: present
+  become: yes
+
+- name: Set ownership of WildFly installation
+  file:
+    path: /usr/share/wildfly
+    state: directory
+    recurse: yes
+    owner: wildfly
+    group: wildfly
+  become: yes
+
+- name: Copy standalone.xml configuration
+  template:
+    src: standalone.xml
+    dest: /usr/share/wildfly/standalone/configuration/standalone.xml
+  notify: restart wildfly
+  become: yes
+
+- name: Copy systemd service file
+  copy:
+    src: wildfly.service
+    dest: /etc/systemd/system/wildfly.service
+    mode: '0644'
+  notify:
+    - daemon-reload
+    - restart wildfly
+  become: yes
+
+- name: Allow SSH in UFW
+  ufw:
+    rule: allow
+    port: 22
+    proto: tcp
+  become: yes
+
+- name: Allow WildFly HTTP/HTTPS in UFW
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - 8080
+    - 8443
+  become: yes
+
+- name: Enable UFW firewall
+  ufw:
+    state: enabled
+  become: yes
+
+- name: Enable and start WildFly service
+  systemd:
+    name: wildfly
+    enabled: yes
+    state: started
+  become: yes
